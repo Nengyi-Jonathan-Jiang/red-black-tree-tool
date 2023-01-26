@@ -1,0 +1,68 @@
+body {
+    --bg: #202729;
+    --fg: #ffffff;
+    --hl: #63d297;
+    --ac: #ff5252;
+
+    background:  var(--bg);
+}
+
+.red-black-tree .node,
+.red-black-tree .nil {
+    display: inline-block;
+    margin: 0;
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-size: 0;
+}
+
+.red-black-tree .node { vertical-align: top }
+.red-black-tree .nil {}
+
+.red-black-tree .nil:first-child,
+.red-black-tree .node:first-child{
+    margin-right: 10px;
+}
+
+.red-black-tree .nil::before,
+.red-black-tree .node::before{
+    display: flex;
+    width: 3em;
+    align-items: center;
+    justify-content: center;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    margin-bottom: 10px;
+
+    font-size: 12pt;
+}
+
+.red-black-tree .nil::before {
+    content: "NIL";
+    height: 2em;
+
+    background: var(--bg);
+    border: 2px solid var(--hl);
+    color: var(--hl);
+}
+
+.red-black-tree .node::before {
+    content: attr(data-value);
+    display: flex;
+    height: 3em;
+
+    border-radius: 50%;
+}
+
+.red-black-tree .red.node::before {
+    background: var(--ac);
+    color: var(--bg);
+    border: 2px solid var(--ac);
+}
+
+.red-black-tree .black.node::before {
+    background: var(--bg);
+    color: var(--hl);
+    border: 2px solid var(--hl);
+}
