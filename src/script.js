@@ -3,6 +3,7 @@ class N {
         this.el = document.createElement("div");
         this.input = document.createElement("span");
         this.input.className = "value-input";
+        this.input.setAttribute("spellcheck", "false");
         this.input.setAttribute("contenteditable", "true");
         this.el.appendChild(this.input);
         this.input.addEventListener('long-press', this.input.oncontextmenu = e => {
@@ -11,8 +12,9 @@ class N {
         });
         this.input.onkeydown = e => {
             if (e.key == "Enter")
-                this.value = this.input.innerText.trim();
-            else if (!e.ctrlKey && e.key.length == 1 && this.input.innerText.length >= 9)
+                this.value = this.input.innerText.trim(),
+                    this.input.blur();
+            else if (e.key.length == 1 && !e.ctrlKey && !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
                 e.preventDefault();
         };
         this.input.addEventListener('focusout', _ => {
@@ -72,6 +74,14 @@ class N {
             x.left && process(x.left);
             x.right && process(x.right);
         });
+    }
+    static parseData() {
+    }
+    static toData(n) {
+        return n == null ? 'nil' : `{${n.left}${n.value}${n.right}}`;
+    }
+    toData() {
+        return N.toData(this);
     }
 }
 document.querySelector('.red-black-tree').appendChild(new N("").el);

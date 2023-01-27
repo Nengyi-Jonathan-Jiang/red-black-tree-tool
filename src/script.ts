@@ -13,6 +13,7 @@ class N {
         this.el = document.createElement("div");
         this.input = document.createElement("span");
         this.input.className = "value-input";
+        this.input.setAttribute("spellcheck", "false");
         this.input.setAttribute("contenteditable", "true");
         this.el.appendChild(this.input);
         this.input.addEventListener('long-press', this.input.oncontextmenu = e => {
@@ -21,8 +22,10 @@ class N {
         })
         this.input.onkeydown = e => {
             if (e.key == "Enter")
-                this.value = this.input.innerText.trim();
-            else if(!e.ctrlKey && e.key.length == 1 && this.input.innerText.length >= 9)
+                this.value = this.input.innerText.trim(),
+                this.input.blur();
+            // Prevent too long text, prevent non-word characters
+            else if(e.key.length == 1 && !e.ctrlKey && !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
                 e.preventDefault();
         }
         this.input.addEventListener('focusout', _ => {
@@ -96,6 +99,35 @@ class N {
             x.left && process(x.left);
             x.right && process(x.right);
         })
+    }
+
+
+    public static parseData(s:string){ let i = 0; return this._parseData(() => i >= s.length ? null : s[i++]) }
+    private static _parseData(next: ()=>string):N{    // Input: s := NIL | {s:<text>:s}
+        let c1 = next();
+        if(c1=='{'){
+            const left = this._parseData(next);
+            next(); //Advance past ":"
+            let val = "", c;
+            while((c = next()) && c != ":") val += c;
+            // We stop after advancing past ":", just parse again
+            const right = this._parseData(next);
+            // Advance past "}"
+            next();
+
+            const res = new N(val);
+            res.left = left;
+            res.right = right;
+            return res;
+        }
+        else if(c1 == 'N'){
+
+        }
+
+        return null;
+    }
+    public static toData(n: N){
+        return n == null ? 'nil' : `{${n.left}:${n.value}:${n.right}}`
     }
 }
 
