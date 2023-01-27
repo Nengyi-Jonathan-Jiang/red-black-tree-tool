@@ -1,68 +1,135 @@
+/* Declare color palette */
+:root {
+    --dark: #202729;
+    --light: #ffffff;
+    --accent: #63d297;
+    --color: #ff5252;
+}
+
+/* Dark theme colors */
+body[theme="dark"] {
+    --background-color: var(--dark);
+    --edge-color: var(--light);
+    --black-node-border: var(--accent);
+    --black-node-color: var(--accent);
+    --black-node-bkgd: var(--dark);
+    --red-node-border: var(--color);
+    --red-node-color: var(--dark);
+    --red-node-bkgd: var(--color);
+    --text-color: var(--light);
+}
+
+/* Light theme colors */
+body[theme="light"] {
+    --background-color: var(--light);
+    --edge-color: var(--accent);
+    --black-node-border: var(--dark);
+    --black-node-color: var(--light);
+    --black-node-bkgd: var(--dark);
+    --red-node-border: var(--color);
+    --red-node-color: var(--light);
+    --red-node-bkgd: var(--color);
+    --text-color: dark;
+}
+
+
+* {
+    box-sizing: border-box
+}
+
+
 body {
-    --bg: #202729;
-    --fg: #ffffff;
-    --hl: #63d297;
-    --ac: #ff5252;
+    margin: 0; padding: 10px;
+    width: 100vw; height: 100vh;
 
-    background:  var(--bg);
-}
+    background: var(--background-color);
 
-.red-black-tree .node,
-.red-black-tree .nil {
-    display: inline-block;
-    margin: 0;
-    font-family: "JetBrains Mono", "Consolas", monospace;
-    font-size: 0;
-}
-
-.red-black-tree .node { vertical-align: top }
-.red-black-tree .nil {}
-
-.red-black-tree .nil:first-child,
-.red-black-tree .node:first-child{
-    margin-right: 10px;
-}
-
-.red-black-tree .nil::before,
-.red-black-tree .node::before{
     display: flex;
-    width: 3em;
     align-items: center;
     justify-content: center;
 
+    transition: background-color .2s;
+}
+
+.red-black-tree {
+    white-space: nowrap;
+}
+
+.red-black-tree .node, .red-black-tree .nil {
+    display: inline-block;
+
+    margin: 0;
+
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-size: 0;
+
+    --l: 0;
+    --theta: -90;
+}
+
+.red-black-tree .node > .value-input::before, .red-black-tree .nil > .value-input::before {
+    content: "";
+
+    display: block;
+    width: 0; height: var(--l);
+
+    position: absolute;
+    left: 50%; top: calc(50% - var(--l));
+
+    outline: 1px solid var(--edge-color);
+
+    z-index: -1000;
+
+    transform-origin: bottom;
+    transform: rotate(calc(90deg + var(--theta)));
+}
+
+/* specific styling targeted towards special nodes */
+.red-black-tree .nil > .value-input:empty::after { content: "" }
+.red-black-tree .node { vertical-align: top }
+.red-black-tree .nil:nth-child(2), .red-black-tree .node:nth-child(2) { margin-right: 10px }
+
+
+.red-black-tree .value-input {
+    position: relative;
+
+    min-width: 3em; width: fit-content;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     margin-left: auto;
     margin-right: auto;
 
     margin-bottom: 10px;
 
     font-size: 12pt;
+
+    outline: none;
+    padding: 0 .25em;
 }
 
-.red-black-tree .nil::before {
-    content: "NIL";
+.red-black-tree .nil > .value-input {
     height: 2em;
-
-    background: var(--bg);
-    border: 2px solid var(--hl);
-    color: var(--hl);
+    background: var(--black-node-bkgd);
+    border: 2px solid var(--black-node-border);
+    color: var(--black-node-color);
 }
 
-.red-black-tree .node::before {
-    content: attr(data-value);
-    display: flex;
+.red-black-tree .node > .value-input {
     height: 3em;
-
     border-radius: 50%;
 }
 
-.red-black-tree .red.node::before {
-    background: var(--ac);
-    color: var(--bg);
-    border: 2px solid var(--ac);
+.red-black-tree .red.node > .value-input {
+    background: var(--red-node-bkgd);
+    color: var(--red-node-color);
+    border: 2px solid var(--red-node-border)
 }
 
-.red-black-tree .black.node::before {
-    background: var(--bg);
-    color: var(--hl);
-    border: 2px solid var(--hl);
+.red-black-tree .black.node > .value-input {
+    background: var(--black-node-bkgd);
+    color: var(--black-node-color);
+    border: 2px solid var(--black-node-border)
 }

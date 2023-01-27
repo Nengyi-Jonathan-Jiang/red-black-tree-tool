@@ -2,43 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
-    <script src="https://raw.githubusercontent.com/musclesoft/jquery-connections/gh-pages/jquery.connections.js"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="red-black-tree">
-    <div class="black node" data-value="22">
-      <div class="red node" data-value="14">
-        <div class="black node" data-value="6">
-          <div class="red node" data-value="3">
-            <div class="nil"></div>
-            <div class="nil"></div>
-          </div>
-          <div class="red node" data-value="8">
-            <div class="nil"></div>
-            <div class="nil"></div>
-          </div>
-        </div>
-        <div class="black node" data-value="20">
-          <div class="nil"></div>
-          <div class="red node" data-value="21">
-            <div class="nil"></div>
-            <div class="nil"></div>
-          </div>
-        </div>
-      </div>
-      <div class="black node" data-value="25">
-        <div class="nil"></div>
-        <div class="red node" data-value="31">
-          <div class="nil"></div>
-          <div class="nil"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #theme-changer {
+            position: absolute;
+            top: 10px; right: 10px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/42/42146.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            border: none;
+            width: 40px; height: 40px;
+        }
+        body[theme="dark"] #theme-changer{ filter: invert() }
+    </style>
+</head>
+<body theme="dark">
+  <button id="theme-changer"></button>
+  <script> document.getElementById('theme-changer').onclick = _ => document.body.setAttribute('theme', "" + document.body.getAttribute('theme') === 'light' ? 'dark' : 'light') </script>
+  <div class="red-black-tree"></div>
   <script src="script.js"></script>
 </body>
 </html>
