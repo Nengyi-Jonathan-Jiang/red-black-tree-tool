@@ -1,30 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Title</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono" rel="stylesheet">
-    <link rel="stylesheet" href="src/style.css">
-    <style>
-        #theme-changer {
-            position: absolute;
-            top: 10px; right: 10px;
-            background-image: url('https://cdn-icons-png.flaticon.com/512/42/42146.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-color: transparent;
-            border: none;
-            width: 40px; height: 40px;
-        }
-        body[theme="dark"] #theme-changer{ filter: invert() }
-    </style>
-</head>
-<body theme="dark">
-  <button id="theme-changer"></button>
-  <script> document.getElementById('theme-changer').onclick = _ => document.body.setAttribute('theme', "" + document.body.getAttribute('theme') === 'light' ? 'dark' : 'light') </script>
-  <div class="red-black-tree"></div>
-  <script src="src/script.js"></script>
-</body>
+        <title>Title</title>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono" rel="stylesheet">
+        <link rel="stylesheet" href="src/style.css">
+        <style>
+            .floating-btns { position: absolute; top: 10px }
+            #floating-btns-left { left: 10px }
+            #floating-btns-right { right: 10px }
+            .floating-btns>button{
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-color: transparent;
+                border: none;
+                width: 40px; height: 40px;
+                transition: filter 0.2s;
+            }
+            .floating-btns>button:not(:first-child){
+                margin-left: 10px;
+            }
+
+            #theme-changer { background-image: url('https://cdn-icons-png.flaticon.com/256/42/42146.png') }
+            #undo { background-image: url('https://cdn-icons-png.flaticon.com/256/9497/9497632.png') }
+            #redo { background-image: url('https://cdn-icons-png.flaticon.com/256/9497/9497459.png') }
+            #reset { background-image: url('https://cdn-icons-png.flaticon.com/256/9487/9487282.png') }
+
+            /* Filters for dark theme button, disabled btn */
+            body[theme="dark"] .floating-btns>button { filter: invert() }
+            body[theme="dark"] .floating-btns>button[aria-disabled="true"] { filter: invert() brightness(0.4) }
+            body[theme="light"] .floating-btns>button[aria-disabled="true"] { filter: invert() brightness(0.8) }
+        </style>
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    </head>
+    <body theme="dark">
+        <div id="floating-btns-left" class="floating-btns">
+            <button id="undo" onclick="undo&&undo()"></button>
+            <button id="redo" onclick="redo&&redo()"></button>
+            <button id="reset" onclick="if(confirm('Are you sure you want to reset the tree?')) steps.splice(currStep=0), steps.push('-'), updateAfterStep()"></button>
+        </div>
+        <div id="floating-btns-right" class="floating-btns">
+            <button id="theme-changer"></button>
+        </div>
+        <script> document.getElementById('theme-changer').onclick = _ => document.body.setAttribute('theme', "" + document.body.getAttribute('theme') === 'light' ? 'dark' : 'light') </script>
+        <div class="red-black-tree"></div>
+        <script src="src/script.js"></script>
+    </body>
 </html>

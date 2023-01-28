@@ -3,8 +3,8 @@
 class N {
     public el: HTMLElement;
     public input: HTMLSpanElement;
-    public _value: string;
-    public _color: boolean;
+    private _value: string;
+    private _color: boolean;
     private lc : N;
     private rc : N;
     private _parent: N;
@@ -16,30 +16,42 @@ class N {
         this.input.setAttribute("spellcheck", "false");
         this.input.setAttribute("contenteditable", "true");
         this.el.appendChild(this.input);
-        this.input.addEventListener('long-press', this.input.oncontextmenu = e => {
+        this.input.oncontextmenu = e => {
             this.color = value == null || !this.color;
             e.preventDefault();
-        })
+            saveStep(this.root);
+        }
         this.input.onkeydown = e => {
-            if (e.key == "Enter")
-                this.value = this.input.innerText.trim(),
+            if (e.key == "Enter") {
+                let s = this.input.innerText.trim();
+                if (s != this.value) {
+                    this.value = s;
+                    saveStep(this.root);
+                }
                 this.input.blur();
+                e.preventDefault();
+            }
             // Prevent too long text, prevent non-word characters
             else if(e.key.length == 1 && !e.ctrlKey && !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
                 e.preventDefault();
         }
         this.input.addEventListener('focusout', _ => {
-            this.value = this.input.innerText.trim();
+            let s = this.input.innerText.trim();
+            if (s != this.value) {
+                this.value = s;
+                saveStep(this.root);
+            }
+            this.input.blur();
         })
 
         this.value = value;
         this.color = false;
 
-        N.updateEdgeRendering(this.root);
+        N.updateLayout(this.root);
     }
 
     set color(c){
-        this._color = c && this._value != null;
+        this._color = c && !!this._value;
         this.el.className =
             this._value == null ? "nil" :
             c ? "black node" : "red node";
@@ -47,7 +59,7 @@ class N {
     get color(){ return this._color }
 
     set value(v: string){
-        if(v == "" || v == "NIL"){
+        if(v == null || v == "" || v == "NIL"){
             this._value = null;
             this.input.innerText = "NIL";
             this.el.className = "nil";
@@ -65,17 +77,18 @@ class N {
         }
         this.color = this.color;
 
-        N.updateEdgeRendering(this.root);
+        N.updateLayout(this.root);
     }
+    get value(){ return this._value }
 
-    set left(n){this.lc = n; n && (this.el.appendChild(n.el), n._parent = this)}
-    set right(n){this.rc = n; n && (this.el.appendChild(n.el), n._parent = this)}
+    set left(n){this.lc && this.lc.delete(); this.lc = n; n && (this.el.appendChild(n.el), n._parent = this)}
+    set right(n){this.rc && this.rc.delete(); this.rc = n; n && (this.el.appendChild(n.el), n._parent = this)}
     get left() {return this.lc}
     get right() {return this.rc}
 
     delete(){
         this.el.parentElement.removeChild(this.el);
-        N.updateEdgeRendering(this.root);
+        N.updateLayout(this.root);
     }
 
     get parent(){
@@ -86,7 +99,7 @@ class N {
         return this.parent == null ? this : this.parent.root;
     }
 
-    private static updateEdgeRendering(root: N){
+    public static updateLayout(root: N){
         [root.left, root.right].filter(i => !!i).map(function process(x: N){
             const [xe, pe] = [x.input, x.parent.input];
             const [pr, xr] = [xe, pe].map(i => i.getBoundingClientRect());
@@ -102,10 +115,16 @@ class N {
     }
 
 
-    public static parseData(s:string){ let i = 0; return this._parseData(() => i >= s.length ? null : s[i++]) }
-    private static _parseData(next: ()=>string):N{    // Input: s := NIL | {s:<text>:s}
+    public static parseData(s:string){
+        let i = 0;
+        let ss = s.replaceAll("%20", " ");
+        return this._parseData(() => i >= ss.length ? null : ss[i++]);
+    }
+    private static _parseData(next: ()=>string):N{    // Input: s := - | {s:<text>:s}
         let c1 = next();
         if(c1=='{'){
+            const color = next() == 'b';
+            next(); //Advance past ":"
             const left = this._parseData(next);
             next(); //Advance past ":"
             let val = "", c;
@@ -116,19 +135,66 @@ class N {
             next();
 
             const res = new N(val);
+            res.color = color;
             res.left = left;
             res.right = right;
             return res;
         }
-        else if(c1 == 'N'){
-
+        else if(c1 == '-'){
+            return new N("");
         }
 
         return null;
     }
-    public static toData(n: N){
-        return n == null ? 'nil' : `{${n.left}:${n.value}:${n.right}}`
+    public static toData(n: N) : string{
+        return n == null || n.value == null ? '-' : `{${'rb'[+n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`
     }
 }
 
-document.querySelector('.red-black-tree').appendChild(new N("").el);
+
+let r:N;
+let currStep = -1;
+const steps:string[] = [];
+let lastStep:string = null;
+
+function saveStep(n: N){
+    let d = N.toData(n);
+    if(d == lastStep) return;
+    steps.splice(currStep + 1);
+    steps.push(N.toData(n));
+    currStep++;
+    updateAfterStep(false);
+}
+
+function undo(){ canUndo() && currStep--, updateAfterStep() }
+function redo(){ canRedo() && currStep++, updateAfterStep() }
+function canUndo(){ return currStep > 0 }
+function canRedo(){ return currStep + 1 < steps.length }
+function updateAfterStep(updateTree=true){
+    let s = steps[currStep] || '-';
+    lastStep = window.location.hash = s;
+
+    if(updateTree) {
+        let t = N.parseData(s);
+        r.value = t.value;
+        r.color = t.color;
+        r.left = t.left;
+        r.right = t.right;
+    }
+
+    N.updateLayout(r);
+    document.getElementById('undo').ariaDisabled = "" + !canUndo();
+    document.getElementById('redo').ariaDisabled = "" + !canRedo();
+}
+
+{
+    r = window.location.hash && N.parseData(window.location.hash.substring(1)) || new N(null);
+
+    document.querySelector('.red-black-tree').appendChild(r.el);
+    r.value = r.value;
+
+    // @ts-ignore
+    window["r"] = r;
+
+    saveStep(r);
+}
