@@ -37,6 +37,7 @@
         <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     </head>
     <body theme="dark">
+        <div class="red-black-tree"></div>
         <div id="floating-btns-left" class="floating-btns">
             <button id="undo" onclick="undo&&undo()"></button>
             <button id="redo" onclick="redo&&redo()"></button>
@@ -46,7 +47,6 @@
             <button id="theme-changer"></button>
         </div>
         <script> document.getElementById('theme-changer').onclick = _ => document.body.setAttribute('theme', "" + document.body.getAttribute('theme') === 'light' ? 'dark' : 'light') </script>
-        <div class="red-black-tree"></div>
         <script src="src/script.js"></script>
     </body>
 </html>

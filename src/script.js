@@ -42,7 +42,9 @@ class N {
             this._value == null ? "nil" :
                 c ? "black node" : "red node";
     }
-    get color() { return this._color; }
+    get color() {
+        return this._color;
+    }
     set value(v) {
         if (v == null || v == "" || v == "NIL") {
             this._value = null;
@@ -61,11 +63,25 @@ class N {
         this.color = this.color;
         N.updateLayout(this.root);
     }
-    get value() { return this._value; }
-    set left(n) { this.lc && this.lc.delete(); this.lc = n; n && (this.el.appendChild(n.el), n._parent = this); }
-    set right(n) { this.rc && this.rc.delete(); this.rc = n; n && (this.el.appendChild(n.el), n._parent = this); }
-    get left() { return this.lc; }
-    get right() { return this.rc; }
+    get value() {
+        return this._value;
+    }
+    set left(n) {
+        this.lc && this.lc.delete();
+        this.lc = n;
+        n && (this.el.appendChild(n.el), n._parent = this);
+    }
+    set right(n) {
+        this.rc && this.rc.delete();
+        this.rc = n;
+        n && (this.el.appendChild(n.el), n._parent = this);
+    }
+    get left() {
+        return this.lc;
+    }
+    get right() {
+        return this.rc;
+    }
     delete() {
         this.el.parentElement.removeChild(this.el);
         N.updateLayout(this.root);
@@ -76,7 +92,36 @@ class N {
     get root() {
         return this.parent == null ? this : this.parent.root;
     }
+    get reverseLevelOrderTraversal() {
+        const S = [];
+        const Q = [];
+        Q.push(this);
+        while (Q.length) {
+            const node = Q.shift();
+            S.push(node);
+            node.left && Q.push(node.left);
+            node.right && Q.push(node.right);
+        }
+        return S;
+    }
     static updateLayout(root) {
+        setTimeout(() => {
+            this._updateLayout(root);
+        }, 0);
+    }
+    static _updateLayout(root) {
+        for (const node of root.reverseLevelOrderTraversal) {
+            let w = node.el.getBoundingClientRect().width;
+            let iw = node.input.getBoundingClientRect().width;
+            node.el.dataset.w = w.toString();
+            let left;
+            if (node.value == null)
+                left = w / 2;
+            else
+                left = (+node.left.el.dataset.l + +node.left.el.dataset.w + +node.right.el.dataset.l) / 2;
+            node.el.dataset.l = left.toString();
+            node.input.style.setProperty("--left", (left - iw / 2).toString());
+        }
         [root.left, root.right].filter(i => !!i).map(function process(x) {
             const [xe, pe] = [x.input, x.parent.input];
             const [pr, xr] = [xe, pe].map(i => i.getBoundingClientRect());
@@ -133,10 +178,18 @@ function saveStep(n) {
     currStep++;
     updateAfterStep(false);
 }
-function undo() { canUndo() && currStep--, updateAfterStep(); }
-function redo() { canRedo() && currStep++, updateAfterStep(); }
-function canUndo() { return currStep > 0; }
-function canRedo() { return currStep + 1 < steps.length; }
+function undo() {
+    canUndo() && currStep--, updateAfterStep();
+}
+function redo() {
+    canRedo() && currStep++, updateAfterStep();
+}
+function canUndo() {
+    return currStep > 0;
+}
+function canRedo() {
+    return currStep + 1 < steps.length;
+}
 function updateAfterStep(updateTree = true) {
     let s = steps[currStep] || '-';
     lastStep = window.location.hash = s;
