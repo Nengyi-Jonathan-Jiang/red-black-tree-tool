@@ -1,0 +1,115 @@
+// INSERT 37 42 47 21 46 18 30 33 9 6 7 45 3 29 43
+
+class RedBlackTree {
+  private _root: RBTNode;
+
+  public constructor() {
+    this._root = null;
+  }
+
+  public get root() {
+    return this._root;
+  }
+
+  public setRoot(root: RBTNode) {
+    this._root = root;
+  }
+
+  public static from(s:string){
+    let i = 0;
+    let ss = s.replaceAll("%20", " ");
+    return this._from(() => i >= ss.length ? null : ss[i++]);
+  }
+  private static _from(next: ()=>string): RBTNode{    // Input: s := - | {<color = r|b|B>:s:<text = number>:s}
+    let c1 = next();
+    if(c1=='{'){
+      const color = {r: Color.RED, b : Color.BLACK, B: Color.DOUBLE_BLACK}[next()];
+      next(); //Advance past ":"
+      const left = this._from(next);
+      next(); //Advance past ":"
+      let val = "", c;
+      while((c = next()) && c != ":") val += c;
+      // We stop after advancing past ":", just parse again
+      const right = this._from(next);
+      // Advance past "}"
+      next();
+
+      const res = new RBTNode(val);
+      res.setColor(color);
+      res.leftChild = left;
+      res.rightChild = right;
+      return res;
+    }
+    else return new RBTNode(null);
+  }
+  public static serialize(n: RBTNode) : string{
+    return n == null || n.value == null ? '-' : `{${'rb'[+n.color]}:${this.serialize(n.leftChild)}:${n.value}:${this.serialize(n.rightChild)}}`
+  }
+}
+enum Color { RED, BLACK, DOUBLE_BLACK }
+class RBTNode {
+  private _color: Color;
+  private _value: string;
+
+  private _parent: RBTNode;
+  private _leftChild: RBTNode;
+  private _rightChild: RBTNode;
+
+  get color() {return this._color}
+  get value() {return this._value}
+  set value(v) { this._value = v }
+  public get isNil() { return this.value == null }
+
+  public setColor(c: Color) { this._color = this.isNil ? Color.BLACK : c }
+  public swapColor() { this.setColor(this.color == Color.RED ? Color.BLACK : Color.RED) }
+
+  public get parent() { return this._parent }
+  public get leftChild() { return this._leftChild }
+  public get rightChild () { return this._rightChild }
+  public set leftChild(n) { this._leftChild = n; n && (n._parent = this) }
+  public set rightChild(n) { this._rightChild = n; n && (n._parent = this) }
+
+  public constructor(value: string) {
+    this._value = value;
+    this._color = Color.RED;
+  }
+}
+
+function RedBlackTreeEl () {
+  const [state, setState] = useState('-');
+  const [states, setStates] = useState(['-']);
+
+  const actualTree = RedBlackTree.from(state);
+
+  return <div className="red-black-tree">
+    <RedBlackTreeNodeEl node={actualTree}/>
+  </div>
+}
+
+function RedBlackTreeNodeEl({node} : {node:RBTNode}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  function onChange(evt: FormEvent<HTMLSpanElement>) {
+
+  }
+  return node.isNil
+      ? (
+          <div className={`${['red', 'black', 'double-black'][node.color as number]} node`}>
+            <div className="left subtree">
+              <RedBlackTreeNodeEl node={node.leftChild}/>
+            </div>
+            <span contentEditable spellCheck="false" className="value-input" onChange={onChange} ref={ref}>
+                    NODE
+                </span>
+            <div className="right subtree">
+              <RedBlackTreeNodeEl node={node.rightChild}/>
+            </div>
+          </div>
+      ) : (
+          <div className='nil'>
+                <span contentEditable spellCheck="false" className="value-input" ref={ref} onChange={onChange}>
+                    NIL
+                </span>
+          </div>
+      )
+}
+export default RedBlackTreeEl;

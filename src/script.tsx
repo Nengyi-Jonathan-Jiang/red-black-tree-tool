@@ -30,10 +30,14 @@ class N {
                 }
                 this.input.blur();
                 e.preventDefault();
+
+                N.updateLayout(this.root);
             }
             // Prevent too long text, prevent non-word characters
             else if (e.key.length == 1 && !e.ctrlKey && !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
                 e.preventDefault();
+
+            N.updateLayout(this.root);
         }
         this.input.addEventListener('focusout', _ => {
             let s = this.input.innerText.trim();
@@ -42,6 +46,8 @@ class N {
                 saveStep(this.root);
             }
             this.input.blur();
+
+            N.updateLayout(this.root);
         })
 
         this.value = value;
@@ -135,6 +141,10 @@ class N {
     }
 
     public static updateLayout(root: N) {
+        // Force redraw
+        document.body.style.display = 'none';
+        document.body.style.display = 'flex';
+
         // Re-space nodes
         for(const node of root.reverseLevelOrderTraversal){
             let w = node.el.getBoundingClientRect().width;

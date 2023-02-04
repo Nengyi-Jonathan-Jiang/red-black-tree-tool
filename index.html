@@ -44,9 +44,8 @@
             <button id="reset" onclick="if(confirm('Are you sure you want to reset the tree?')) steps.splice(currStep=0), steps.push('-'), updateAfterStep()"></button>
         </div>
         <div id="floating-btns-right" class="floating-btns">
-            <button id="theme-changer"></button>
+            <button id="theme-changer" onclick="body.setAttribute('theme', document.body.getAttribute('theme') === 'light' ? 'dark' : 'light')"></button>
         </div>
-        <script> document.getElementById('theme-changer').onclick = _ => document.body.setAttribute('theme', "" + document.body.getAttribute('theme') === 'light' ? 'dark' : 'light') </script>
         <script src="src/script.js"></script>
     </body>
 </html>
