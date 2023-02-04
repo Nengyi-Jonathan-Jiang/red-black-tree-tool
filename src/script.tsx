@@ -141,10 +141,6 @@ class N {
     }
 
     public static updateLayout(root: N) {
-        // Force redraw
-        document.body.style.display = 'none';
-        document.body.style.display = 'flex';
-
         // Re-space nodes
         for(const node of root.reverseLevelOrderTraversal){
             let w = node.el.getBoundingClientRect().width;
