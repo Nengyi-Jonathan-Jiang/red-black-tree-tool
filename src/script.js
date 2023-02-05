@@ -1,15 +1,45 @@
+var Color;
+(function (Color) {
+    Color["RED"] = "red";
+    Color["BLACK"] = "black";
+    Color["DOUBLE_BLACK"] = "double-black";
+    Color["PLUS_1"] = "plus-1";
+    Color["MINUS_1"] = "minus-1";
+    Color["PLUS_2"] = "plus-2";
+    Color["MINUS_2"] = "minus-2";
+    Color["NIL"] = "nil";
+})(Color || (Color = {}));
 class N {
     constructor(value) {
         this.el = document.createElement("div");
+        this.node = document.createElement("span");
+        this.node.className = "value-input";
+        this.el.appendChild(this.node);
         this.input = document.createElement("span");
-        this.input.className = "value-input";
+        this.input.className = "value-input-text";
         this.input.setAttribute("spellcheck", "false");
         this.input.setAttribute("contenteditable", "true");
-        this.el.appendChild(this.input);
-        this.input.oncontextmenu = e => {
-            this.color = value == null || !this.color;
+        this.node.appendChild(this.input);
+        this.changeColorEl = document.createElement("div");
+        this.changeColorEl.className = "node-color";
+        for (const color of ["red", "black", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "nil"]) {
+            const btn = document.createElement("button");
+            btn.className = 'color-btn ' + color;
+            this.changeColorEl.appendChild(btn);
+            btn.onclick = _ => {
+                this.color = color;
+                saveStep(this.root);
+            };
+        }
+        this.changeColorEl.style.display = 'none';
+        this.node.appendChild(this.changeColorEl);
+        this.node.oncontextmenu = e => {
+            let hidden = this.changeColorEl.style.display != 'flex';
+            document
+                .querySelectorAll('div.node-color')
+                .forEach(i => i.style.display = 'none');
+            this.changeColorEl.style.display = hidden ? 'flex' : 'none';
             e.preventDefault();
-            saveStep(this.root);
         };
         this.input.onkeydown = e => {
             if (e.key == "Enter") {
@@ -18,11 +48,12 @@ class N {
                     this.value = s;
                     saveStep(this.root);
                 }
-                this.input.blur();
+                this.node.blur();
                 e.preventDefault();
                 N.updateLayout(this.root);
             }
-            else if (e.key.length == 1 && !e.ctrlKey && !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
+            else if (e.key.length == 1 && !e.ctrlKey &&
+                !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
                 e.preventDefault();
             N.updateLayout(this.root);
         };
@@ -36,14 +67,12 @@ class N {
             N.updateLayout(this.root);
         });
         this.value = value;
-        this.color = false;
+        this.color = "black";
         N.updateLayout(this.root);
     }
     set color(c) {
-        this._color = c && !!this._value;
-        this.el.className =
-            this._value == null ? "nil" :
-                c ? "black node" : "red node";
+        this._color = this.value == null ? "nil" : c;
+        this.el.className = this._color == "nil" ? 'nil' : 'node ' + this._color;
     }
     get color() {
         return this._color;
@@ -108,11 +137,9 @@ class N {
         return S;
     }
     static updateLayout(root) {
-        document.body.style.display = 'none';
-        document.body.style.display = 'flex';
         for (const node of root.reverseLevelOrderTraversal) {
             let w = node.el.getBoundingClientRect().width;
-            let iw = node.input.getBoundingClientRect().width;
+            let iw = node.node.getBoundingClientRect().width;
             node.el.dataset.w = w.toString();
             let left;
             if (node.value == null)
@@ -120,10 +147,10 @@ class N {
             else
                 left = (+node.left.el.dataset.l + +node.left.el.dataset.w + +node.right.el.dataset.l) / 2;
             node.el.dataset.l = left.toString();
-            node.input.style.setProperty("--left", (left - iw / 2).toString());
+            node.node.style.setProperty("--left", (left - iw / 2).toString());
         }
-        [root.left, root.right].filter(i => !!i).map(function process(x) {
-            const [xe, pe] = [x.input, x.parent.input];
+        [root.left, root.right].filter(i => !!i).forEach(function process(x) {
+            const [xe, pe] = [x.node, x.parent.node];
             const [pr, xr] = [xe, pe].map(i => i.getBoundingClientRect());
             const [pc, xc] = [pr, xr].map(i => [i.x + i.width / 2, i.y + i.height / 2]);
             const [dx, dy] = [xc[0] - pc[0], xc[1] - pc[1]];
@@ -141,7 +168,7 @@ class N {
     static _parseData(next) {
         let c1 = next();
         if (c1 == '{') {
-            const color = next() == 'b';
+            const color = { b: "black", a: "red", n: "nil", l: "plus-1", L: "plus-2", r: "minus-1", R: "minus-2" }[next()];
             next();
             const left = this._parseData(next);
             next();

@@ -1,34 +1,35 @@
 /* Declare color palette */
 :root {
-    --dark: #202022;
-    --light: #ffffff;
+    --black: #202022;
+    --white: #ffffff;
     --accent: #63d297;
-    --color: #ff5252;
+    --red: #ff5252;
+    --blue: #52a4ff;
+    --purple: #52a4ff;
+    --gray: #888888;
 }
 
 /* Dark theme colors */
 body[theme="dark"] {
-    --background-color: var(--dark);
-    --edge-color: var(--light);
+    --background-color: var(--black);
     --black-node-border: var(--accent);
     --black-node-color: var(--accent);
-    --black-node-bkgd: var(--dark);
-    --red-node-border: var(--color);
-    --red-node-color: var(--dark);
-    --red-node-bkgd: var(--color);
-    --text-color: var(--light);
+    --black-node-bkgd: var(--black);
+    --red-node-border: var(--red);
+    --red-node-color: var(--black);
+    --red-node-bkgd: var(--red);
+    --text-color: var(--white);
 }
 
 /* Light theme colors */
 body[theme="light"] {
-    --background-color: var(--light);
-    --edge-color: var(--accent);
-    --black-node-border: var(--dark);
-    --black-node-color: var(--light);
-    --black-node-bkgd: var(--dark);
-    --red-node-border: var(--color);
-    --red-node-color: var(--light);
-    --red-node-bkgd: var(--color);
+    --background-color: var(--white);
+    --black-node-border: var(--black);
+    --black-node-color: var(--white);
+    --black-node-bkgd: var(--black);
+    --red-node-border: var(--red);
+    --red-node-color: var(--white);
+    --red-node-bkgd: var(--red);
     --text-color: dark;
 }
 
@@ -76,7 +77,7 @@ body {
     position: absolute;
     left: 50%; top: calc(50% - var(--l));
 
-    outline: 1px solid var(--edge-color);
+    outline: 1px solid var(--gray);
 
     z-index: -1000;
 
@@ -84,9 +85,9 @@ body {
     transform: rotate(calc(90deg + var(--theta)));
 }
 
-/* specific styling targeted towards special nodes */
-.red-black-tree .nil > .value-input:empty::after { content: "" }
 .red-black-tree .node { vertical-align: top }
+
+/* specific styling targeted towards special nodes */
 .red-black-tree .nil:nth-child(2), .red-black-tree .node:nth-child(2) { margin-right: 10px }
 
 
@@ -152,6 +153,89 @@ body[theme="light"] .red-black-tree .double-black.node > .value-input {
     background: var(--black-node-bkgd);
     color: var(--black-node-color);
     border: 2px solid var(--black-node-border);
-    outline: 2px solid var(--light);
+    outline: 2px solid var(--white);
     outline-offset: -4px;
 }
+
+.red-black-tree .minus-1.node > .value-input,
+.red-black-tree .minus-2.node > .value-input,
+.red-black-tree .plus-1.node > .value-input,
+.red-black-tree .plus-2.node > .value-input {
+    background: var(--black-node-bkgd);
+}
+
+.red-black-tree .minus-1.node > .value-input,
+.red-black-tree .minus-2.node > .value-input{
+    color: var(--blue);
+    border: 2px solid var(--blue);
+}
+.red-black-tree .plus-1.node > .value-input,
+.red-black-tree .plus-2.node > .value-input {
+    color: var(--red);
+    border: 2px solid var(--red);
+}
+
+.red-black-tree .minus-1.node > .value-input::after,
+.red-black-tree .minus-2.node > .value-input::after,
+.red-black-tree .plus-1.node > .value-input::after,
+.red-black-tree .plus-2.node > .value-input::after {
+    font-size: 6pt;
+    content: '+2';
+    vertical-align: top;
+}
+
+.value-input-text {
+    outline: none;
+}
+
+.red-black-tree .node-color {
+    position: absolute;
+    right: 120%;
+    background: var(--white);
+    padding: 4px;
+    outline: 1px solid var(--black);
+    display: none; /*block*/
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    height: 100px;
+    width: 52px;
+}
+
+body[theme="dark"] .red-black-tree .node-color {
+    outline-color: var(--accent);
+}
+
+.red-black-tree .node-color .color-btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: transparent;
+    outline-offset: -2px;
+    border: none;
+    background: none;
+    flex: none;
+}
+.red-black-tree .node-color .color-btn.black { background: var(--black) }
+.red-black-tree .node-color .color-btn.double-black { background: var(--black); outline-color: var(--white); outline-offset: -4px }
+.red-black-tree .node-color .color-btn.red { background: var(--red) }
+.red-black-tree .node-color .color-btn.minus-1,
+.red-black-tree .node-color .color-btn.minus-2 { outline-color: var(--blue) }
+.red-black-tree .node-color .color-btn.minus-1::before,
+.red-black-tree .node-color .color-btn.minus-2::before { color: var(--blue); content: '-'; font-size: 8pt }
+.red-black-tree .node-color .color-btn.minus-2::before { content: '-2' }
+.red-black-tree .node-color .color-btn.plus-1,
+.red-black-tree .node-color .color-btn.plus-2 { outline-color: var(--red) }
+.red-black-tree .node-color .color-btn.plus-1::before,
+.red-black-tree .node-color .color-btn.plus-2::before { color: var(--red); content: '+'; font-size: 8pt }
+.red-black-tree .node-color .color-btn.plus-2::before { content: '+2' }
+.red-black-tree .node-color .color-btn.nil { outline-color: var(--gray) }
