@@ -37,12 +37,14 @@ class N {
 
         this.changeColorEl = document.createElement("div");
         this.changeColorEl.className = "node-color";
+        this.changeColorEl.setAttribute("tabindex", "0");
 
         for(const color of 
                 [Color.RED, Color.BLACK, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL]
         ){
             const btn = document.createElement("button");
             btn.className = 'color-btn ' + (color as string);
+            btn.setAttribute("tabindex", "0");
             this.changeColorEl.appendChild(btn);
 
             btn.onclick = _ => {
@@ -88,9 +90,6 @@ class N {
                 this.value = s;
                 saveStep(this.root);
             }
-            
-            this.input.blur();
-            this.changeColorEl.style.display = 'none';
 
             N.updateLayout(this.root);
         })
@@ -156,6 +155,10 @@ class N {
     }
 
     delete() {
+        // if(this.parent) {
+        //     if(this == this.parent.lc) this.parent.lc = null;
+        //     if(this == this.parent.rc) this.parent.rc = null;
+        // }
         this.el.parentElement.removeChild(this.el);
         N.updateLayout(this.root);
     }
@@ -225,7 +228,16 @@ class N {
     private static _parseData(next: () => string): N {    // Input: s := - | {s:<text>:s}
         let c1 = next();
         if (c1 == '{') {
-            const color = {b:Color.BLACK,a:Color.RED,n:Color.NIL,l:Color.PLUS_1,L:Color.PLUS_2,r:Color.MINUS_1,R:Color.MINUS_2}[next()];
+            const color = {
+                b:Color.BLACK,
+                B:Color.DOUBLE_BLACK,
+                a:Color.RED,
+                n:Color.NIL,
+                l:Color.PLUS_1,
+                L:Color.PLUS_2,
+                r:Color.MINUS_1,
+                R:Color.MINUS_2
+            }[next()];
             next(); //Advance past ":"
             const left = this._parseData(next);
             next(); //Advance past ":"
@@ -249,10 +261,18 @@ class N {
     }
 
     public static toData(n: N): string {
-        return n == null || n.value == null ? '-' : `{${'rb'[+n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`
+        return n == null || n.value == null ? '-' : `{${{
+            [Color.BLACK]:'b',
+            [Color.DOUBLE_BLACK]:'B',
+            [Color.RED]:'a',
+            [Color.NIL]:'n',
+            [Color.PLUS_1]:'l',
+            [Color.PLUS_2]:'L',
+            [Color.MINUS_1]:'r',
+            [Color.MINUS_2]:'R',
+        }[n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`
     }
 }
-
 
 let r: N;
 let currStep = -1;
@@ -311,4 +331,8 @@ function updateAfterStep(updateTree = true) {
     window["r"] = r;
 
     saveStep(r);
+
+    document.body.onclick = _ => document
+        .querySelectorAll('div.node-color')
+        .forEach(i => (i as HTMLElement).style.display = 'none');
 }

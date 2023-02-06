@@ -22,9 +22,11 @@ class N {
         this.node.appendChild(this.input);
         this.changeColorEl = document.createElement("div");
         this.changeColorEl.className = "node-color";
+        this.changeColorEl.setAttribute("tabindex", "0");
         for (const color of ["red", "black", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "nil"]) {
             const btn = document.createElement("button");
             btn.className = 'color-btn ' + color;
+            btn.setAttribute("tabindex", "0");
             this.changeColorEl.appendChild(btn);
             btn.onclick = _ => {
                 this.color = color;
@@ -63,7 +65,6 @@ class N {
                 this.value = s;
                 saveStep(this.root);
             }
-            this.input.blur();
             N.updateLayout(this.root);
         });
         this.value = value;
@@ -168,7 +169,16 @@ class N {
     static _parseData(next) {
         let c1 = next();
         if (c1 == '{') {
-            const color = { b: "black", a: "red", n: "nil", l: "plus-1", L: "plus-2", r: "minus-1", R: "minus-2" }[next()];
+            const color = {
+                b: "black",
+                B: "double-black",
+                a: "red",
+                n: "nil",
+                l: "plus-1",
+                L: "plus-2",
+                r: "minus-1",
+                R: "minus-2"
+            }[next()];
             next();
             const left = this._parseData(next);
             next();
@@ -189,7 +199,16 @@ class N {
         return null;
     }
     static toData(n) {
-        return n == null || n.value == null ? '-' : `{${'rb'[+n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`;
+        return n == null || n.value == null ? '-' : `{${{
+            ["black"]: 'b',
+            ["double-black"]: 'B',
+            ["red"]: 'a',
+            ["nil"]: 'n',
+            ["plus-1"]: 'l',
+            ["plus-2"]: 'L',
+            ["minus-1"]: 'r',
+            ["minus-2"]: 'R',
+        }[n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`;
     }
 }
 let r;
@@ -237,5 +256,8 @@ function updateAfterStep(updateTree = true) {
     r.value = r.value;
     window["r"] = r;
     saveStep(r);
+    document.body.onclick = _ => document
+        .querySelectorAll('div.node-color')
+        .forEach(i => i.style.display = 'none');
 }
 //# sourceMappingURL=script.js.map
