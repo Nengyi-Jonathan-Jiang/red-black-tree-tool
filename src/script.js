@@ -36,11 +36,11 @@ class N {
         this.changeColorEl.style.display = 'none';
         this.node.appendChild(this.changeColorEl);
         this.node.oncontextmenu = e => {
-            let hidden = this.changeColorEl.style.display != 'flex';
+            let shouldShow = this.changeColorEl.style.display != 'flex';
             document
                 .querySelectorAll('div.node-color')
                 .forEach(i => i.style.display = 'none');
-            this.changeColorEl.style.display = hidden ? 'flex' : 'none';
+            this.changeColorEl.style.display = shouldShow ? 'flex' : 'none';
             e.preventDefault();
         };
         this.input.onkeydown = e => {
@@ -53,6 +53,12 @@ class N {
                 this.node.blur();
                 e.preventDefault();
                 N.updateLayout(this.root);
+            }
+            else if (e.ctrlKey && e.key.match(/^[1-7]$/g)) {
+                this.color = ["black", "red", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "nil"][+e.key - 1];
+            }
+            else if (e.ctrlKey && e.key == 'Backspace') {
+                this.color = "nil";
             }
             else if (e.key.length == 1 && !e.ctrlKey &&
                 !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
@@ -67,13 +73,17 @@ class N {
             }
             N.updateLayout(this.root);
         });
+        this.color = "nil";
         this.value = value;
-        this.color = "black";
         N.updateLayout(this.root);
     }
     set color(c) {
-        this._color = this.value == null ? "nil" : c;
+        this._color = c;
         this.el.className = this._color == "nil" ? 'nil' : 'node ' + this._color;
+        if (c != "nil" && this.value == null)
+            this.value = "0";
+        else if (c == "nil" && this.value != null)
+            this.value = null;
     }
     get color() {
         return this._color;
@@ -82,18 +92,20 @@ class N {
         if (v == null || v == "" || v == "NIL") {
             this._value = null;
             this.input.innerText = "NIL";
-            this.el.className = "nil";
+            if (this.color != "nil")
+                this.color = "nil";
             this.lc && this.lc.delete();
             this.rc && this.rc.delete();
             this.lc = this.rc = null;
         }
         else {
+            if (this.color == "nil")
+                this.color = "black";
             this._value = v;
             this.input.innerText = v;
             this.lc || (this.left = new N(""));
             this.rc || (this.right = new N(""));
         }
-        this.color = this.color;
         N.updateLayout(this.root);
     }
     get value() {

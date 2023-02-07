@@ -40,7 +40,7 @@ class N {
         this.changeColorEl.setAttribute("tabindex", "0");
 
         for(const color of 
-                [Color.RED, Color.BLACK, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL]
+            [Color.RED, Color.BLACK, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL]
         ){
             const btn = document.createElement("button");
             btn.className = 'color-btn ' + (color as string);
@@ -57,11 +57,11 @@ class N {
         this.node.appendChild(this.changeColorEl);
 
         this.node.oncontextmenu = e => {
-            let hidden = this.changeColorEl.style.display != 'flex';
+            let shouldShow = this.changeColorEl.style.display != 'flex';
             document
                 .querySelectorAll('div.node-color')
                 .forEach(i => (i as HTMLElement).style.display = 'none');
-            this.changeColorEl.style.display = hidden ? 'flex' : 'none';
+            this.changeColorEl.style.display = shouldShow ? 'flex' : 'none';
             e.preventDefault();
         }
         this.input.onkeydown = e => {
@@ -75,6 +75,12 @@ class N {
                 e.preventDefault();
 
                 N.updateLayout(this.root);
+            }
+            else if(e.ctrlKey && e.key.match(/^[1-7]$/g)){
+                this.color = [Color.BLACK, Color.RED, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL][+e.key - 1];
+            }
+            else if(e.ctrlKey && e.key == 'Backspace'){
+                this.color = Color.NIL;
             }
             // Prevent too long text, prevent non-word characters
             else if (
@@ -94,15 +100,17 @@ class N {
             N.updateLayout(this.root);
         })
 
+        this.color = Color.NIL;
         this.value = value;
-        this.color = Color.BLACK;
 
         N.updateLayout(this.root);
     }
 
     set color(c) {
-        this._color = this.value == null ? Color.NIL : c;
+        this._color = c;
         this.el.className = this._color == Color.NIL ? 'nil' : 'node ' + this._color;
+        if(c != Color.NIL && this.value == null) this.value = "0";
+        else if(c == Color.NIL && this.value != null) this.value = null;
     }
 
     get color() {
@@ -113,19 +121,20 @@ class N {
         if (v == null || v == "" || v == "NIL") {
             this._value = null;
             this.input.innerText = "NIL";
-            this.el.className = "nil";
+            if(this.color != Color.NIL) this.color = Color.NIL;
 
             this.lc && this.lc.delete();
             this.rc && this.rc.delete();
             this.lc = this.rc = null;
         } else {
+            if(this.color == Color.NIL) this.color = Color.BLACK;
+
             this._value = v;
             this.input.innerText = v;
 
             this.lc || (this.left = new N(""));
             this.rc || (this.right = new N(""));
         }
-        this.color = this.color;
 
         N.updateLayout(this.root);
     }
@@ -155,10 +164,6 @@ class N {
     }
 
     delete() {
-        // if(this.parent) {
-        //     if(this == this.parent.lc) this.parent.lc = null;
-        //     if(this == this.parent.rc) this.parent.rc = null;
-        // }
         this.el.parentElement.removeChild(this.el);
         N.updateLayout(this.root);
     }

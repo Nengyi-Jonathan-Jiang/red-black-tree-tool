@@ -164,15 +164,23 @@ body[theme="light"] .red-black-tree .double-black.node > .value-input {
     background: var(--black-node-bkgd);
 }
 
-.red-black-tree .minus-1.node > .value-input,
-.red-black-tree .minus-2.node > .value-input{
+body[theme="dark"] .red-black-tree .minus-1.node > .value-input,
+body[theme="dark"] .red-black-tree .minus-2.node > .value-input{
     color: var(--blue);
     border: 2px solid var(--blue);
 }
-.red-black-tree .plus-1.node > .value-input,
-.red-black-tree .plus-2.node > .value-input {
+body[theme="dark"] .red-black-tree .plus-1.node > .value-input,
+body[theme="dark"] .red-black-tree .plus-2.node > .value-input {
     color: var(--red);
     border: 2px solid var(--red);
+}
+
+body[theme="light"] .red-black-tree .plus-1.node > .value-input,
+body[theme="light"] .red-black-tree .plus-2.node > .value-input,
+body[theme="light"] .red-black-tree .minus-1.node > .value-input,
+body[theme="light"] .red-black-tree .minus-2.node > .value-input{
+    color: var(--white);
+    border: 2px solid var(--black);
 }
 
 .red-black-tree .minus-1.node > .value-input::after,
