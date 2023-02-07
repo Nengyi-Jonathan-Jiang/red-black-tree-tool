@@ -78,6 +78,7 @@ class N {
             }
             else if(e.ctrlKey && e.key.match(/^[1-7]$/g)){
                 this.color = [Color.BLACK, Color.RED, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL][+e.key - 1];
+                e.preventDefault();
             }
             else if(e.ctrlKey && e.key == 'Backspace'){
                 this.color = Color.NIL;
