@@ -30,7 +30,6 @@ class N {
             this.changeColorEl.appendChild(btn);
             btn.onclick = _ => {
                 this.color = color;
-                saveStep(this.root);
             };
         }
         this.changeColorEl.style.display = 'none';
@@ -48,11 +47,9 @@ class N {
                 let s = this.input.innerText.trim();
                 if (s != this.value) {
                     this.value = s;
-                    saveStep(this.root);
                 }
                 this.node.blur();
                 e.preventDefault();
-                N.updateLayout(this.root);
             }
             else if (e.ctrlKey && e.key.match(/^[1-7]$/g)) {
                 this.color = ["black", "red", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "nil"][+e.key - 1];
@@ -60,6 +57,7 @@ class N {
             }
             else if (e.ctrlKey && e.key == 'Backspace') {
                 this.color = "nil";
+                e.preventDefault();
             }
             else if (e.key.length == 1 && !e.ctrlKey &&
                 !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
@@ -70,15 +68,18 @@ class N {
             let s = this.input.innerText.trim();
             if (s != this.value) {
                 this.value = s;
-                saveStep(this.root);
             }
             N.updateLayout(this.root);
         });
-        this.color = "nil";
-        this.value = value;
+        this._setColor("nil");
+        this._setValue(value);
         N.updateLayout(this.root);
     }
     set color(c) {
+        this._setColor(c);
+        saveStep(this.root);
+    }
+    _setColor(c) {
         this._color = c;
         this.el.className = this._color == "nil" ? 'nil' : 'node ' + this._color;
         if (c != "nil" && this.value == null)
@@ -90,6 +91,10 @@ class N {
         return this._color;
     }
     set value(v) {
+        this._setValue(v);
+        saveStep(this.root);
+    }
+    _setValue(v) {
         if (v == null || v == "" || v == "NIL") {
             this._value = null;
             this.input.innerText = "NIL";
