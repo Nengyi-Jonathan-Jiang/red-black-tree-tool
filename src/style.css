@@ -209,8 +209,8 @@ body[theme="light"] .red-black-tree .minus-2.node > .value-input{
     justify-content: space-between;
     align-items: center;
     z-index: 100;
-    height: 100px;
-    width: 54px;
+    height: 78px;
+    width: 78px;
 }
 
 body[theme="dark"] .red-black-tree .node-color {
@@ -246,3 +246,8 @@ body[theme="dark"] .red-black-tree .node-color {
 .red-black-tree .node-color .color-btn.plus-2::before { color: var(--red); content: '+'; font-size: 8pt }
 .red-black-tree .node-color .color-btn.plus-2::before { content: '+2' }
 .red-black-tree .node-color .color-btn.nil { outline-color: var(--gray) }
+
+.red-black-tree .node-color .color-btn.left-rotate,
+.red-black-tree .node-color .color-btn.right-rotate{ outline-color: var(--gray); color: var(--gray) }
+.red-black-tree .node-color .color-btn.left-rotate::before { content: 'l' }
+.red-black-tree .node-color .color-btn.right-rotate::before { content: 'r' }

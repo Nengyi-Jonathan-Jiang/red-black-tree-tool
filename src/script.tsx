@@ -15,7 +15,7 @@ class N {
     public el: HTMLElement;
     public node: HTMLSpanElement;
     public input: HTMLSpanElement;
-    public changeColorEl: HTMLDivElement;
+    public menu: HTMLDivElement;
     private _value: string;
     private _color: Color;
     private lc: N;
@@ -35,32 +35,56 @@ class N {
         this.input.setAttribute("contenteditable", "true");
         this.node.appendChild(this.input);
 
-        this.changeColorEl = document.createElement("div");
-        this.changeColorEl.className = "node-color";
-        this.changeColorEl.setAttribute("tabindex", "0");
+        this.menu = document.createElement("div");
+        this.menu.className = "node-color";
+        this.menu.setAttribute("tabindex", "0");
 
         for(const color of 
-            [Color.RED, Color.BLACK, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL]
+            [Color.BLACK, Color.RED, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2]
         ){
             const btn = document.createElement("button");
             btn.className = 'color-btn ' + (color as string);
             btn.setAttribute("tabindex", "0");
-            this.changeColorEl.appendChild(btn);
+            this.menu.appendChild(btn);
 
             btn.onclick = _ => {
                 this.color = color;
             }
         }
-        this.changeColorEl.style.display = 'none';
 
-        this.node.appendChild(this.changeColorEl);
+        {
+            {
+                const btn = document.createElement("button");
+                btn.className = 'color-btn left-rotate';
+                btn.setAttribute("tabindex", "0");
+                this.menu.appendChild(btn);
+
+                btn.onclick = _ => {
+                    if(this.left.value) this.leftRotate();
+                }
+            }
+            {
+                const btn = document.createElement("button");
+                btn.className = 'color-btn right-rotate';
+                btn.setAttribute("tabindex", "0");
+                this.menu.appendChild(btn);
+
+                btn.onclick = _ => {
+                    if(this.right.value) this.rightRotate();
+                }
+            }
+        }
+
+        this.menu.style.display = 'none';
+
+        this.node.appendChild(this.menu);
 
         this.node.oncontextmenu = e => {
-            let shouldShow = this.changeColorEl.style.display != 'flex';
+            let shouldShow = this.menu.style.display != 'flex';
             document
                 .querySelectorAll('div.node-color')
                 .forEach(i => (i as HTMLElement).style.display = 'none');
-            this.changeColorEl.style.display = shouldShow ? 'flex' : 'none';
+            this.menu.style.display = shouldShow ? 'flex' : 'none';
             e.preventDefault();
         }
         this.input.onkeydown = e => {
@@ -130,8 +154,8 @@ class N {
             this.input.innerText = "NIL";
             if(this.color != Color.NIL) this.color = Color.NIL;
 
-            this.lc && this.lc.delete();
-            this.rc && this.rc.delete();
+            this.lc && this.lc.removeFromParent();
+            this.rc && this.rc.removeFromParent();
             this.lc = this.rc = null;
         } else {
             if(this.color == Color.NIL) this.color = Color.BLACK;
@@ -150,16 +174,61 @@ class N {
         return this._value
     }
 
+    leftRotate () {
+        const p = this.left;
+        this.left = p.right;
+        if(this.parent == null){
+            this.el.parentElement.appendChild(p.el);
+            this.el.parentElement.removeChild(this.el);
+            // @ts-ignore
+            window["r"] = p;
+            p.parent = null;
+        }
+        else if(this == this.parent.left){
+            this.parent.left = p;
+        }
+        else if(this == this.parent.right){
+            this.parent.right = p;
+        }
+        else {
+            throw "What the poop";
+        }
+        p.right = this;
+    }
+
+    rightRotate () {
+        const p = this.right;
+        this.right = p.left;
+        if(this.parent == null){
+            this.el.parentElement.appendChild(p.el);
+            this.el.parentElement.removeChild(this.el);
+            // @ts-ignore
+            window["r"] = p;
+            p.parent = null;
+        }
+        else if(this == this.parent.right){
+            this.parent.right = p;
+        }
+        else if(this == this.parent.left){
+            this.parent.left = p;
+        }
+        else {
+            throw "What the poop";
+        }
+        p.left = this;
+    }
     set left(n) {
-        this.lc && this.lc.delete();
+        this.lc && (this.lc._parent = null);
+        this.lc?.removeFromDOM();
         this.lc = n;
-        n && (this.el.appendChild(n.el), n._parent = this)
+        n && (n.parent = this)
     }
 
     set right(n) {
-        this.rc && this.rc.delete();
+        this.rc && (this.rc._parent = null);
+        this.rc?.removeFromDOM();
         this.rc = n;
-        n && (this.el.appendChild(n.el), n._parent = this)
+        n && (n.parent = this)
     }
 
     get left() {
@@ -170,17 +239,32 @@ class N {
         return this.rc
     }
 
-    delete() {
-        this.el.parentElement.removeChild(this.el);
-        N.updateLayout(this.root);
+    removeFromParent() {
+        if(this.parent?.left == this)
+            this.parent.left = null;
+        if(this.parent?.right == this)
+            this.parent.right = null;
+    }
+    removeFromDOM(){
+        this.el.parentElement?.removeChild(this.el);
     }
 
     get parent() {
         return this._parent;
     }
 
+    set parent(p) {
+        this.removeFromParent();
+        if(p) {
+            if (this == p.lc) {
+                p.node.insertAdjacentElement('afterend', this.el);
+            } else p.el.appendChild(this.el);
+        }
+        this._parent = p;
+    }
+
     get root(): N {
-        return this.parent == null ? this : this.parent.root;
+        return this.parent?.root ?? this;
     }
 
     get reverseLevelOrderTraversal() : N[] {
@@ -216,18 +300,23 @@ class N {
         }
 
         // Draw lines
-        [root.left, root.right].filter(i => !!i).forEach(function process(x: N) {
-            const [xe, pe] = [x.node, x.parent.node];
-            const [pr, xr] = [xe, pe].map(i => i.getBoundingClientRect());
-            const [pc, xc] = [pr, xr].map(i => [i.x + i.width / 2, i.y + i.height / 2]);
+        (function process(x: N) {
+            if(x.parent) {
+                const [xe, pe] = [x.node, x.parent.node];
+                const [pr, xr] = [xe, pe].map(i => i.getBoundingClientRect());
+                const [pc, xc] = [pr, xr].map(i => [i.x + i.width / 2, i.y + i.height / 2]);
 
-            const [dx, dy] = [xc[0] - pc[0], xc[1] - pc[1]];
-            x.el.style.setProperty("--l", Math.sqrt(dx * dx + dy * dy) + "px");
-            x.el.style.setProperty("--theta", Math.atan2(dy, dx) + "rad");
-
+                const [dx, dy] = [xc[0] - pc[0], xc[1] - pc[1]];
+                x.el.style.setProperty("--l", Math.sqrt(dx * dx + dy * dy) + "px");
+                x.el.style.setProperty("--theta", Math.atan2(dy, dx) + "rad");
+            }
+            else {
+                x.el.style.setProperty("--l", "0");
+                x.el.style.setProperty("--theta","0");
+            }
             x.left && process(x.left);
             x.right && process(x.right);
-        })
+        })(root);
     }
 
 
@@ -286,7 +375,6 @@ class N {
     }
 }
 
-let r: N;
 let currStep = -1;
 const steps: string[] = [];
 let lastStep: string = null;
@@ -322,29 +410,37 @@ function updateAfterStep(updateTree = true) {
 
     if (updateTree) {
         let t = N.parseData(s);
-        r.value = t.value;
-        r.color = t.color;
-        r.left = t.left;
-        r.right = t.right;
+        // @ts-ignore
+        window["r"].value = t.value;
+        // @ts-ignore
+        window["r"].color = t.color;
+        // @ts-ignore
+        window["r"].left = t.left;
+        // @ts-ignore
+        window["r"].right = t.right;
     }
 
-    N.updateLayout(r);
     document.getElementById('undo').ariaDisabled = "" + !canUndo();
     document.getElementById('redo').ariaDisabled = "" + !canRedo();
 }
 
 {
-    r = window.location.hash && N.parseData(window.location.hash.substring(1)) || new N(null);
-
-    document.querySelector('.red-black-tree').appendChild(r.el);
-    r.value = r.value;
 
     // @ts-ignore
-    window["r"] = r;
+    window["r"] = window.location.hash && N.parseData(window.location.hash.substring(1)) || new N(null);
 
-    saveStep(r);
+    document.querySelector('.red-black-tree').appendChild(// @ts-ignore
+        window["r"].el);
+
+    saveStep(// @ts-ignore
+        window["r"] );
 
     document.body.onclick = _ => document
         .querySelectorAll('div.node-color')
         .forEach(i => (i as HTMLElement).style.display = 'none');
+
+    setInterval(() => N.updateLayout(
+        // @ts-ignore
+        window["r"].root
+    ), 100)
 }
