@@ -109,6 +109,12 @@ class N {
                 e.key.length == 1 && !e.ctrlKey && 
                 !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/))
             ) e.preventDefault();
+            else if(e.ctrlKey && e.key == "ArrowLeft"){
+                this.right?.value && this.rightRotate();
+            }
+            else if(e.ctrlKey && e.key == "ArrowRight"){
+                this.left?.value && this.leftRotate();
+            }
 
             N.updateLayout(this.root);
         }
@@ -194,6 +200,7 @@ class N {
             throw "What the poop";
         }
         p.right = this;
+        saveStep(this.root);
     }
 
     rightRotate () {
@@ -216,6 +223,7 @@ class N {
             throw "What the poop";
         }
         p.left = this;
+        saveStep(this.root);
     }
     set left(n) {
         this.lc && (this.lc._parent = null);

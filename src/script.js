@@ -65,6 +65,7 @@ class N {
             e.preventDefault();
         };
         this.input.onkeydown = e => {
+            var _a, _b;
             if (e.key == "Enter") {
                 let s = this.input.innerText.trim();
                 if (s != this.value) {
@@ -84,6 +85,12 @@ class N {
             else if (e.key.length == 1 && !e.ctrlKey &&
                 !(this.input.innerText.length < 9 && e.key.match(/^[a-zA-Z0-9.\- ]$/)))
                 e.preventDefault();
+            else if (e.ctrlKey && e.key == "ArrowLeft") {
+                ((_a = this.right) === null || _a === void 0 ? void 0 : _a.value) && this.rightRotate();
+            }
+            else if (e.ctrlKey && e.key == "ArrowRight") {
+                ((_b = this.left) === null || _b === void 0 ? void 0 : _b.value) && this.leftRotate();
+            }
             N.updateLayout(this.root);
         };
         this.input.addEventListener('focusout', _ => {
@@ -158,6 +165,7 @@ class N {
             throw "What the poop";
         }
         p.right = this;
+        saveStep(this.root);
     }
     rightRotate() {
         const p = this.right;
@@ -178,6 +186,7 @@ class N {
             throw "What the poop";
         }
         p.left = this;
+        saveStep(this.root);
     }
     set left(n) {
         var _a;

@@ -248,6 +248,15 @@ body[theme="dark"] .red-black-tree .node-color {
 .red-black-tree .node-color .color-btn.nil { outline-color: var(--gray) }
 
 .red-black-tree .node-color .color-btn.left-rotate,
-.red-black-tree .node-color .color-btn.right-rotate{ outline-color: var(--gray); color: var(--gray) }
-.red-black-tree .node-color .color-btn.left-rotate::before { content: 'l' }
-.red-black-tree .node-color .color-btn.right-rotate::before { content: 'r' }
+.red-black-tree .node-color .color-btn.right-rotate{
+    outline-color: black;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/50/50453.png');
+    background-size: 50% 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: invert() brightness(40%) invert();
+}
+
+.red-black-tree .node-color .color-btn.right-rotate {
+    transform: scaleX(-1);
+}
