@@ -189,6 +189,13 @@ body[theme="light"] .red-black-tree .minus-2.node > .value-input{
     border: 2px dashed var(--black-node-border);
 }
 
+
+body[theme="light"] .red-black-tree .subtree.node > .value-input {
+    background: var(--white);
+    color: var(--black);
+    border: 2px dashed var(--black-node-border);
+}
+
 .red-black-tree .minus-1.node > .value-input::after,
 .red-black-tree .minus-2.node > .value-input::after,
 .red-black-tree .plus-1.node > .value-input::after,
