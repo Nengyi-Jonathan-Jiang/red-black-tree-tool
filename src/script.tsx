@@ -33,7 +33,7 @@ class N {
         this.input = document.createElement("span");
         this.input.className = "value-input-text";
         this.input.setAttribute("spellcheck", "false");
-        this.input.setAttribute("contenteditable", "true");
+        this.input.setAttribute("contenteditable", "0");
         this.node.appendChild(this.input);
 
         this.menu = document.createElement("div");
@@ -112,9 +112,11 @@ class N {
             ) e.preventDefault();
             else if(e.ctrlKey && e.key == "ArrowLeft"){
                 this.right?.value && this.rightRotate();
+                e.preventDefault()
             }
             else if(e.ctrlKey && e.key == "ArrowRight"){
                 this.left?.value && this.leftRotate();
+                e.preventDefault()
             }
 
             N.updateLayout(this.root);

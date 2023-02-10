@@ -88,9 +88,11 @@ class N {
                 e.preventDefault();
             else if (e.ctrlKey && e.key == "ArrowLeft") {
                 ((_a = this.right) === null || _a === void 0 ? void 0 : _a.value) && this.rightRotate();
+                e.preventDefault();
             }
             else if (e.ctrlKey && e.key == "ArrowRight") {
                 ((_b = this.left) === null || _b === void 0 ? void 0 : _b.value) && this.leftRotate();
+                e.preventDefault();
             }
             N.updateLayout(this.root);
         };
