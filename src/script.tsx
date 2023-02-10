@@ -142,8 +142,16 @@ class N {
     _setColor(c : Color){
         this._color = c;
         this.el.className = this._color == Color.NIL ? 'nil' : 'node ' + this._color;
-        if((c != Color.NIL && c != Color.DOUBLE_BLACK && c != Color.SUBTREE) && this.value == null) this.value = "0";
+        if((c != Color.NIL && c != Color.DOUBLE_BLACK) && this.value == null) this.value = "0";
         else if(c == Color.NIL && this.value != null) this.value = null;
+        if(c == Color.SUBTREE){
+            this.left = null;
+            this.right = null;
+        }
+        else if(c != Color.NIL && c != Color.DOUBLE_BLACK){
+            this.lc || (this.left = new N(""));
+            this.rc || (this.right = new N(""));
+        }
     }
 
     get color() {
@@ -170,8 +178,14 @@ class N {
             this._value = v;
             this.input.innerText = v;
 
-            this.lc || (this.left = new N(""));
-            this.rc || (this.right = new N(""));
+            if(this.color != Color.SUBTREE) {
+                this.lc || (this.left = new N(""));
+                this.rc || (this.right = new N(""));
+            }
+            else {
+                this.left = null;
+                this.right = null;
+            }
         }
 
         N.updateLayout(this.root);

@@ -184,14 +184,34 @@ body[theme="light"] .red-black-tree .minus-2.node > .value-input{
 }
 
 .red-black-tree .subtree.node > .value-input {
-    height: 3em;
+    height: 2em;
+    background-image:
+            linear-gradient(to bottom right, transparent 50%, var(--black-node-border) 0),
+            linear-gradient(to top right, var(--black-node-border) 50%, transparent 0);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    background-position: left, right;
+    align-items: end;
+    color: var(--black-node-color);
+    border-radius: 0;
+}
+
+.red-black-tree .subtree.node > .value-input:after {
+    content: "";
+    display: block;
+    position:absolute;
+    bottom: 2px;
+    width: calc(100% - 8px);
+    height: calc(100% - 5px);
     background-image:
             linear-gradient(to bottom right, transparent 50%, var(--black-node-bkgd) 0),
             linear-gradient(to top right, var(--black-node-bkgd) 50%, transparent 0);
     background-size: 50% 100%;
     background-repeat: no-repeat;
     background-position: left, right;
-    align-items: end;
+    color: var(--black-node-color);
+    border-radius: 0;
+    z-index: 0;
 }
 
 .red-black-tree .minus-1.node > .value-input::after,
@@ -206,6 +226,7 @@ body[theme="light"] .red-black-tree .minus-2.node > .value-input{
 
 .value-input-text {
     outline: none;
+    z-index: 1;
 }
 
 .red-black-tree .node-color {

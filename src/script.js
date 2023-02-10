@@ -78,7 +78,6 @@ class N {
             else if (e.ctrlKey && e.key.match(/^[1-8]$/g)) {
                 this.color = ["black", "red", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "subtree"][+e.key - 1];
                 e.preventDefault();
-                console.log(e.key);
             }
             else if (e.ctrlKey && e.key == 'Backspace') {
                 this.color = "nil";
@@ -113,10 +112,18 @@ class N {
     _setColor(c) {
         this._color = c;
         this.el.className = this._color == "nil" ? 'nil' : 'node ' + this._color;
-        if ((c != "nil" && c != "double-black" && c != "subtree") && this.value == null)
+        if ((c != "nil" && c != "double-black") && this.value == null)
             this.value = "0";
         else if (c == "nil" && this.value != null)
             this.value = null;
+        if (c == "subtree") {
+            this.left = null;
+            this.right = null;
+        }
+        else if (c != "nil" && c != "double-black") {
+            this.lc || (this.left = new N(""));
+            this.rc || (this.right = new N(""));
+        }
     }
     get color() {
         return this._color;
@@ -140,8 +147,14 @@ class N {
                 this.color = "black";
             this._value = v;
             this.input.innerText = v;
-            this.lc || (this.left = new N(""));
-            this.rc || (this.right = new N(""));
+            if (this.color != "subtree") {
+                this.lc || (this.left = new N(""));
+                this.rc || (this.right = new N(""));
+            }
+            else {
+                this.left = null;
+                this.right = null;
+            }
         }
         N.updateLayout(this.root);
     }
