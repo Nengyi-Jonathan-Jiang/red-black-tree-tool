@@ -7,7 +7,8 @@ const enum Color {
     PLUS_1='plus-1', 
     MINUS_1='minus-1', 
     PLUS_2='plus-2', 
-    MINUS_2='minus-2', 
+    MINUS_2='minus-2',
+    SUBTREE='subtree',
     NIL='nil',
 }
 
@@ -96,8 +97,8 @@ class N {
                 this.node.blur();
                 e.preventDefault();
             }
-            else if(e.ctrlKey && e.key.match(/^[1-7]$/g)){
-                this.color = [Color.BLACK, Color.RED, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.NIL][+e.key - 1];
+            else if(e.ctrlKey && e.key.match(/^[1-8]$/g)){
+                this.color = [Color.BLACK, Color.RED, Color.DOUBLE_BLACK, Color.MINUS_1, Color.PLUS_1, Color.MINUS_2, Color.PLUS_2, Color.SUBTREE][+e.key - 1];
                 e.preventDefault();
             }
             else if(e.ctrlKey && e.key == 'Backspace'){
@@ -141,7 +142,7 @@ class N {
     _setColor(c : Color){
         this._color = c;
         this.el.className = this._color == Color.NIL ? 'nil' : 'node ' + this._color;
-        if(c != Color.NIL && this.value == null) this.value = "0";
+        if((c != Color.NIL && c != Color.DOUBLE_BLACK && c != Color.SUBTREE) && this.value == null) this.value = "0";
         else if(c == Color.NIL && this.value != null) this.value = null;
     }
 
@@ -158,7 +159,7 @@ class N {
         if (v == null || v == "" || v == "NIL") {
             this._value = null;
             this.input.innerText = "NIL";
-            if(this.color != Color.NIL) this.color = Color.NIL;
+            if(this.color != Color.NIL && !(this.color == Color.DOUBLE_BLACK && !this.value)) this.color = Color.NIL;
 
             this.lc && this.lc.removeFromParent();
             this.rc && this.rc.removeFromParent();
@@ -345,7 +346,8 @@ class N {
                 l:Color.PLUS_1,
                 L:Color.PLUS_2,
                 r:Color.MINUS_1,
-                R:Color.MINUS_2
+                R:Color.MINUS_2,
+                s:Color.SUBTREE,
             }[next()];
             next(); //Advance past ":"
             const left = this._parseData(next);
@@ -379,6 +381,7 @@ class N {
             [Color.PLUS_2]:'L',
             [Color.MINUS_1]:'r',
             [Color.MINUS_2]:'R',
+            [Color.SUBTREE]:'s',
         }[n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`
     }
 }

@@ -183,6 +183,17 @@ body[theme="light"] .red-black-tree .minus-2.node > .value-input{
     border: 2px solid var(--black);
 }
 
+.red-black-tree .subtree.node > .value-input {
+    height: 3em;
+    background-image:
+            linear-gradient(to bottom right, transparent 50%, var(--black-node-bkgd) 0),
+            linear-gradient(to top right, var(--black-node-bkgd) 50%, transparent 0);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    background-position: left, right;
+    align-items: end;
+}
+
 .red-black-tree .minus-1.node > .value-input::after,
 .red-black-tree .minus-2.node > .value-input::after,
 .red-black-tree .plus-1.node > .value-input::after,
@@ -232,6 +243,7 @@ body[theme="dark"] .red-black-tree .node-color {
     background: none;
     flex: none;
 }
+
 .red-black-tree .node-color .color-btn.black { background: var(--black) }
 .red-black-tree .node-color .color-btn.double-black { background: var(--black); outline-color: var(--white); outline-offset: -4px }
 .red-black-tree .node-color .color-btn.red { background: var(--red) }

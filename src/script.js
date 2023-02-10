@@ -7,6 +7,7 @@ var Color;
     Color["MINUS_1"] = "minus-1";
     Color["PLUS_2"] = "plus-2";
     Color["MINUS_2"] = "minus-2";
+    Color["SUBTREE"] = "subtree";
     Color["NIL"] = "nil";
 })(Color || (Color = {}));
 class N {
@@ -74,9 +75,10 @@ class N {
                 this.node.blur();
                 e.preventDefault();
             }
-            else if (e.ctrlKey && e.key.match(/^[1-7]$/g)) {
-                this.color = ["black", "red", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "nil"][+e.key - 1];
+            else if (e.ctrlKey && e.key.match(/^[1-8]$/g)) {
+                this.color = ["black", "red", "double-black", "minus-1", "plus-1", "minus-2", "plus-2", "subtree"][+e.key - 1];
                 e.preventDefault();
+                console.log(e.key);
             }
             else if (e.ctrlKey && e.key == 'Backspace') {
                 this.color = "nil";
@@ -111,7 +113,7 @@ class N {
     _setColor(c) {
         this._color = c;
         this.el.className = this._color == "nil" ? 'nil' : 'node ' + this._color;
-        if (c != "nil" && this.value == null)
+        if ((c != "nil" && c != "double-black" && c != "subtree") && this.value == null)
             this.value = "0";
         else if (c == "nil" && this.value != null)
             this.value = null;
@@ -127,7 +129,7 @@ class N {
         if (v == null || v == "" || v == "NIL") {
             this._value = null;
             this.input.innerText = "NIL";
-            if (this.color != "nil")
+            if (this.color != "nil" && !(this.color == "double-black" && !this.value))
                 this.color = "nil";
             this.lc && this.lc.removeFromParent();
             this.rc && this.rc.removeFromParent();
@@ -295,7 +297,8 @@ class N {
                 l: "plus-1",
                 L: "plus-2",
                 r: "minus-1",
-                R: "minus-2"
+                R: "minus-2",
+                s: "subtree",
             }[next()];
             next();
             const left = this._parseData(next);
@@ -326,6 +329,7 @@ class N {
             ["plus-2"]: 'L',
             ["minus-1"]: 'r',
             ["minus-2"]: 'R',
+            ["subtree"]: 's',
         }[n.color]}:${this.toData(n.left)}:${n.value}:${this.toData(n.right)}}`;
     }
 }
