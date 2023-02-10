@@ -33,7 +33,7 @@ class N {
         this.input = document.createElement("span");
         this.input.className = "value-input-text";
         this.input.setAttribute("spellcheck", "false");
-        this.input.setAttribute("contenteditable", "0");
+        this.input.setAttribute("contenteditable", "true");
         this.node.appendChild(this.input);
 
         this.menu = document.createElement("div");
@@ -315,7 +315,7 @@ class N {
             node.el.dataset.w = w.toString();
 
             let left;
-            if(node.value == null) // NIL node
+            if(node.el.children.length == 1) // NIL node
                 left = w / 2;
             else    // Non-nil
                 left = (+node.left.el.dataset.l + +node.left.el.dataset.w + +node.right.el.dataset.l) / 2;

@@ -272,7 +272,7 @@ class N {
             let iw = node.node.getBoundingClientRect().width;
             node.el.dataset.w = w.toString();
             let left;
-            if (node.value == null)
+            if (node.el.children.length == 1)
                 left = w / 2;
             else
                 left = (+node.left.el.dataset.l + +node.left.el.dataset.w + +node.right.el.dataset.l) / 2;
